@@ -1,0 +1,143 @@
+package Sample;
+
+import org.openqa.selenium.*;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.annotations.BeforeSuite;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.text.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+public class Demo {
+
+
+    private WebDriver driver;
+    String baseUrl = "https://play.google.com/store/apps/top";
+
+    public static void main(String[] args) throws FileNotFoundException {
+
+
+    }
+
+    @Test
+
+    public void initDriver() throws Exception {
+
+        System.setProperty("webdriver.chrome.driver", "F:\\chromedriver_win32\\chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        driver.get(baseUrl);
+        driver.manage().window().maximize();
+           /* Robot robot = new Robot();
+                robot.keyPress(KeyEvent.VK_CONTROL);
+                robot.keyPress(KeyEvent.VK_MINUS);*/
+
+
+        String expectedTitle = "Top Charts - Android Apps on Google Play";
+        String actualTitle = "";
+        try {
+            actualTitle = driver.getTitle();
+            System.out.println("ActualTitle is " + actualTitle);
+
+            if (actualTitle.contentEquals(expectedTitle)) {
+                System.out.println("Test Passed!");
+            } else {
+                System.out.println("Test Failed");
+
+            }
+
+
+            List<WebElement> apps = driver.findElements(By.xpath("//*[text()='Top Free Apps']//ancestor::div[3]//div[@jsname='O2DNWb']//*[@class='WHE7ib mpg5gc'] "));
+
+            System.out.println("Total No Of Apps: " + apps.size());
+            WebElement html = driver.findElement(By.tagName("html"));
+            String currentdate = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM d, yyyy"));
+            System.out.println(currentdate);
+            for (int i = 0; i < 5; i++) {
+                driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+                WebElement e = apps.get(i);
+                WebDriverWait wait = new WebDriverWait(driver, 10);
+
+                WebElement e1 = e;
+                wait.until(ExpectedConditions.elementToBeClickable(e1));
+                e1.click();
+                driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+                WebElement Appname = driver.findElement(By.xpath("//*[@itemprop='name']//span"));
+                System.out.println("Name of the application is " + Appname.getText());
+
+                WebElement Total = driver.findElement(By.xpath("(//*[text()=' total']//span)[last()]"));
+                System.out.println("Total no of reviews is " + Total.getText());
+
+                WebElement Updated = driver.findElement(By.xpath("(//*[text()='Updated']/..//span)[last()]"));
+                System.out.println("Last updated date is " + Updated.getText());
+                driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+
+                String string = Updated.getText();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
+                LocalDate date = LocalDate.parse(string, formatter);
+                System.out.println(date);
+
+                SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
+                LocalDate inputString1 = date;
+
+                try {
+                    LocalDate today = LocalDate.now();
+                    LocalDate Update = LocalDate.from(date);
+
+                    Period p = Period.between(Update, today);
+                    long p2 = ChronoUnit.DAYS.between(Update, today);
+                    System.out.println("no of days last updated is: " + p.getDays());
+
+                    NumberFormat nf_in = new DecimalFormat("###,###");
+                    int noreview = nf_in.parse(Total.getText()).intValue();
+
+
+                    int noreviews = noreview;
+
+                    int nodays = p.getDays();
+
+                    int score = noreview / nodays;
+                    System.out.println("Score is : " + score);
+
+
+                } catch (Exception f) {
+                    f.printStackTrace();
+                }
+                driver.navigate().back();
+                driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+
+
+
+            }
+
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        driver.close();
+
+
+    }
+
+
+}
+
